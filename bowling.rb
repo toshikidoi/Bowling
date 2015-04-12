@@ -55,9 +55,25 @@ class Throw
   end
 
   def throw(score)
-    @score = score
-    @frame.update_score(score)
+    if valid_score?(score)
+      @score = score.to_i
+      @frame.update_score(@score)
+    else
+      puts "Invalid Score!!!"
+      false
+    end
   end
+
+  def valid_score?(score)
+    integer_string?(score) && score.to_i >=0 && score.to_i <= 10
+  end
+end
+
+def integer_string?(str)
+  Integer(str)
+  true
+rescue ArgumentError
+  false
 end
 
 puts "Hello, bowling!"
@@ -67,9 +83,10 @@ game = Game.new
 game.frames.each do |frame|
   frame.throws.each do |throw|
     puts "This is a throw #{throw.number} in a frame #{frame.number}."
-    puts "How many pins did you knocked down?"
-    score = gets.to_i
-    throw.throw(score)
+    begin
+      puts "How many pins did you knocked down?"
+      score = gets
+    end until throw.throw(score)
   end
   puts "Current Score is #{game.score}!!!\n\n"
 end

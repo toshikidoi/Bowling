@@ -29,12 +29,18 @@ class Frame
     @game = game
     @throws = []
     @score = 0
+    @left_pins = 10
     setup_throws
   end
 
   def update_score(score)
     @score += score
+    @left_pins -= score
     @game.update_score(score)
+  end
+
+  def valid_score?(score)
+    score <= @left_pins
   end
 
   private
@@ -64,8 +70,9 @@ class Throw
     end
   end
 
+  private
   def valid_score?(score)
-    integer_string?(score) && score.to_i >=0 && score.to_i <= 10
+    integer_string?(score) && score.to_i >=0 && @frame.valid_score?(score.to_i)
   end
 end
 

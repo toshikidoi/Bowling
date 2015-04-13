@@ -43,11 +43,37 @@ class Frame
     score <= @left_pins
   end
 
+  def finished?
+    if strike?
+      puts "Strike!!!"
+      true
+    elsif two_throwed?
+      if spare?
+        puts "Spare!!!"
+      end
+      true
+    else
+      false
+    end
+  end
+
   private
   def setup_throws
     (1..2).each do |i|
       @throws << Throw.new(i, self)
     end
+  end
+
+  def strike?
+    @throws.find{|t| t.number == 1}.score == 10
+  end
+
+  def spare?
+    @throws.map(&:score).inject(&:+) == 10
+  end
+
+  def two_throwed?
+    @throws.all?(&:score)
   end
 end
 
@@ -94,6 +120,7 @@ game.frames.each do |frame|
       puts "How many pins did you knocked down?"
       score = gets
     end until throw.throw(score)
+    break if frame.finished?
   end
   puts "Current Score is #{game.score}!!!\n\n"
 end

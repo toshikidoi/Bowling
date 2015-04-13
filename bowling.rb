@@ -5,17 +5,37 @@ class Game
   def initialize
     @frames = []
     @score = 0
+    @marks = []
     setup_frames
   end
 
   def update_score(score)
     @score += score
+    update_marks(score)
+  end
+
+  def add_strike(frame)
+    @marks << {frame: frame, bonus: [], limit: 2}
+  end
+
+  def add_spare(frame)
+    @marks << {frame: frame, bonus: [], limit: 1}
   end
 
   private
   def setup_frames
     (1..10).each do |i|
       @frames << Frame.new(i, self)
+    end
+  end
+
+  def update_marks(score)
+    @marks.each do |frame|
+      if frame[:bonus].size < frame[:limit]
+        frame[:frame].add_bonus(score)
+        frame[:bonus] << score
+        @score += score
+      end
     end
   end
 end
@@ -46,15 +66,21 @@ class Frame
   def finished?
     if strike?
       puts "Strike!!!"
+      @game.add_strike(self)
       true
     elsif two_throwed?
       if spare?
         puts "Spare!!!"
+        @game.add_spare(self)
       end
       true
     else
       false
     end
+  end
+
+  def add_bonus(score)
+    @score += score
   end
 
   private

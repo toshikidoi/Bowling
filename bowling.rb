@@ -9,8 +9,8 @@ class Game
     setup_frames
   end
 
-  def update_score(score)
-    @score += score
+  def update_score(score, frame)
+    @score += score if frame.number <= 10
     update_marks(score)
   end
 
@@ -22,9 +22,13 @@ class Game
     @marks << {frame: frame, bonus: [], limit: 1}
   end
 
+  def left_marks?
+    @marks.find{|f| f[:bonus].size < f[:limit]}
+  end
+
   private
   def setup_frames
-    (1..10).each do |i|
+    (1..12).each do |i|
       @frames << Frame.new(i, self)
     end
   end
@@ -56,7 +60,7 @@ class Frame
   def update_score(score)
     @score += score
     @left_pins -= score
-    @game.update_score(score)
+    @game.update_score(score, self)
   end
 
   def valid_score?(score)
@@ -66,12 +70,12 @@ class Frame
   def finished?
     if strike?
       puts "Strike!!!"
-      @game.add_strike(self)
+      @game.add_strike(self) if @number <= 10
       true
     elsif two_throwed?
       if spare?
         puts "Spare!!!"
-        @game.add_spare(self)
+        @game.add_spare(self) if @number <= 10
       end
       true
     else
@@ -149,6 +153,7 @@ game.frames.each do |frame|
     break if frame.finished?
   end
   puts "Current Score is #{game.score}!!!\n\n"
+  break if frame.number >= 10 && !game.left_marks?
 end
 
 puts "Final Score is #{game.score}!!!"
